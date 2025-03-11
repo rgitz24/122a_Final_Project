@@ -27,6 +27,8 @@ FUNCTIONS
 '''
 
 def create_tables():
+    # Creates all tables listed under 'tables' using the command associated with each table name
+
     try:
         connection = connect()
         cursor = connection.cursor()
@@ -221,8 +223,45 @@ def import_data(folder_path):
         return False
 
 
-def insert_viewer():
-    pass
+def insert_viewer(uid, email, nickname, street, city, state, zip_code, genres, joined_date, first, last, subscription):
+    # Insert a new viewer
+    # NOTE: create a User first then Viewer isA User
+
+    try:
+        connection = connect()
+        cursor = connection.cursor()
+
+        # Insert user
+        insert_user_command = """
+            INSERT INTO Users (uid, email, nickname, street, city, state, zip_code, genres, joined_date)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+        """
+
+        user_params = (uid, email, nickname, street, city, state, zip_code, genres, joined_date)
+        cursor.execute(insert_user_command, user_params)
+
+        # Insert viewer
+        insert_viewer_command = """
+            INSERT INTO Viewers (uid, first, last, subscription)
+            VALUES (%s, %s, %s, %s)
+        """
+
+        viewer_params = (uid, first, last, subscription)
+        cursor.execute(insert_viewer_command, viewer_params)
+
+        # Commit all edits
+        connection.commit()         
+        cursor.close()              
+        connection.close()
+        return True
+
+    except Exception as error:
+        print(f"Error in insert_viewer as: {error}")
+        connection.rollback()       # Wipes all edits
+        cursor.close()              
+        connection.close()          
+        return False
+        
 
 def add_genre():
     pass
@@ -266,7 +305,8 @@ def main():
 
     # Available functions
     functions = {
-        'import': lambda: import_data(params[0])
+        'import': lambda: import_data(params[0]),
+        'insertViewer': lambda: insert_viewer(params[0], params[1], params[2], params[3], params[4], params[5], params[6], params[7], params[8], params[9], params[10], params[11])
     }
 
     # Run functions
