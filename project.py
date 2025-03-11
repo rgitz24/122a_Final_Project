@@ -50,7 +50,7 @@ def create_tables():
                 """,
             "Producers":
                 """
-                CREATE TABLE Producers (
+                CREATE TABLE IF NOT EXISTS Producers (
                     uid INT,
                     bio TEXT,
                     company TEXT,
@@ -60,7 +60,7 @@ def create_tables():
                 """,
             "Viewers":
                 """
-                CREATE TABLE Viewers (
+                CREATE TABLE IF NOT EXISTS Viewers (
                     uid INT,
                     subscription ENUM('free', 'monthly', 'yearly'),
                     first_name TEXT NOT NULL,
@@ -71,7 +71,7 @@ def create_tables():
                 """,
             "Releases":
                 """
-                CREATE TABLE Releases (
+                CREATE TABLE IF NOT EXISTS Releases (
                     rid INT,
                     producer_uid INT NOT NULL,
                     title TEXT NOT NULL,
@@ -83,7 +83,7 @@ def create_tables():
                 """,
             "Movies":
                 """
-                CREATE TABLE Movies (
+                CREATE TABLE IF NOT EXISTS Movies (
                     rid INT,
                     website_url TEXT,
                     PRIMARY KEY (rid),
@@ -92,7 +92,7 @@ def create_tables():
                 """,
             "Series":
                 """
-                CREATE TABLE Series (
+                CREATE TABLE IF NOT EXISTS Series (
                     rid INT,
                     introduction TEXT,
                     PRIMARY KEY (rid),
@@ -101,7 +101,7 @@ def create_tables():
                 """,
             "Videos":
                 """
-                CREATE TABLE Videos (
+                CREATE TABLE IF NOT EXISTS Videos (
                     rid INT,
                     ep_num INT NOT NULL,
                     title TEXT NOT NULL,
@@ -112,7 +112,7 @@ def create_tables():
                 """,
             "Sessions":
                 """
-                CREATE TABLE Sessions (
+                CREATE TABLE IF NOT EXISTS Sessions (
                     sid INT,
                     uid INT NOT NULL,
                     rid INT NOT NULL,
@@ -128,7 +128,7 @@ def create_tables():
                 """,
             "Reviews":
                 """
-                CREATE TABLE Reviews (
+                CREATE TABLE IF NOT EXISTS Reviews (
                     rvid INT,
                     uid INT NOT NULL,
                     rid INT NOT NULL,
@@ -256,6 +256,8 @@ def main():
     
     function_name = sys.argv[1]     # Collects the function to be executed
     params = sys.argv[2:]           # Everything after are the parameters
+
+    create_tables()
 
     # Available functions
     functions = {
