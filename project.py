@@ -52,6 +52,7 @@ def import_data(folder_path):
         
         for table, csv_file in tables_csv.items():
             file_path = os.path.join(folder_path, csv_file)
+            print(file_path)
 
             # Open each .csv file
             if os.path.exists(file_path):
