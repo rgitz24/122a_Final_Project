@@ -168,17 +168,19 @@ def import_data(folder_path):
         for table in tables:
             cursor.execute(f"DROP TABLE IF EXISTS {table}")     # Removes all tables defined under tables
 
+        create_tables()
+
         # Import data from all the .csv files
         tables_csv = {
-            "Movies": "movies.csv",
-            "Producers": "producers.csv",
-            "Releases": "releases.csv",
-            "Reviews": "reviews.csv",
-            "Series": "series.csv",
-            "Sessions": "sessions.csv",
             "Users": "users.csv",
-            "Videos": "videos.csv",    
-            "Viewers": "viewers.csv"
+            "Producers": "producers.csv",
+            "Viewers": "viewers.csv",
+            "Releases": "releases.csv",
+            "Movies": "movies.csv",
+            "Series": "series.csv",
+            "Videos": "videos.csv",               
+            "Reviews": "reviews.csv",
+            "Sessions": "sessions.csv"
         }
         
         for table, csv_file in tables_csv.items():
@@ -189,7 +191,7 @@ def import_data(folder_path):
                 with open(file_path, 'r') as f:
                     csv_reader = csv.reader(f)
                     headers = next(csv_reader, None) # Skip headers
-                    
+
                     for row in csv_reader:
                         # Replace empty strings with None
                         processed_row = [None if item == '' else item for item in row]
@@ -257,8 +259,6 @@ def main():
     
     function_name = sys.argv[1]     # Collects the function to be executed
     params = sys.argv[2:]           # Everything after are the parameters
-
-    create_tables()
 
     # Available functions
     functions = {
