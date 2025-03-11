@@ -45,16 +45,18 @@ def import_data(folder_path):
 
             # Open each .csv file
             if os.path.exists(file_path):
-                full_path = os.path.abspath(file_path)
-
-                insert = f"""
-                LOAD DATA LOCAL INFILE '{full_path}'
-                INTO TABLE {table}
-                FIELDS TERMINATED BY ','
-                LINES TERMINATED BY '\\n'
-                """
-
-                cursor.execute(insert)
+                with open(file_path, 'r') as f:
+                    csv_reader = csv.reader(f)
+                    for row in csv_reader:
+                        # Replace empty strings with None
+                        processed_row = [None if item == '' else item for item in row]
+                        
+                        # Create the placeholders for the INSERT statement
+                        placeholders = ', '.join(['%s'] * len(processed_row))
+                        
+                        # Execute the INSERT statement
+                        insert_query = f"INSERT INTO {table} VALUES ({placeholders})"
+                        cursor.execute(insert_query, processed_row)
 
         # Commits all edits
         connection.commit()         
