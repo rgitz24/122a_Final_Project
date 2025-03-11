@@ -223,7 +223,7 @@ def import_data(folder_path):
         return False
 
 
-def insert_viewer(uid, email, nickname, street, city, state, zip_code, genres, joined_date, first, last, subscription):
+def insert_viewer(uid, email, joined_date, nickname, street, city, state, zip, genres, subscription, first_name, last_name):
     # Insert a new viewer
     # NOTE: create a User first then Viewer isA User
 
@@ -233,20 +233,20 @@ def insert_viewer(uid, email, nickname, street, city, state, zip_code, genres, j
 
         # Insert user
         insert_user_command = """
-            INSERT INTO Users (uid, email, nickname, street, city, state, zip_code, genres, joined_date)
+            INSERT INTO Users (uid, email, joined_date, nickname, street, city, state, zip, genres)
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
 
-        user_params = (uid, email, nickname, street, city, state, zip_code, genres, joined_date)
+        user_params = (uid, email, nickname, street, city, state, zip, genres, joined_date)
         cursor.execute(insert_user_command, user_params)
 
         # Insert viewer
         insert_viewer_command = """
-            INSERT INTO Viewers (uid, first, last, subscription)
+            INSERT INTO Viewers (uid, subscription, first_name, last_name)
             VALUES (%s, %s, %s, %s)
         """
 
-        viewer_params = (uid, first, last, subscription)
+        viewer_params = (uid, subscription, first_name, last_name)
         cursor.execute(insert_viewer_command, viewer_params)
 
         # Commit all edits
