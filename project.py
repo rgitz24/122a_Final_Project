@@ -142,6 +142,7 @@ def create_tables():
                 """
         }
 
+        # Creates all tables above by executing the commands above
         for table, command in tables.items():
             cursor.execute(command)
         
@@ -152,12 +153,14 @@ def create_tables():
 
     except Exception as error:
         print(f"Error creating tables: {error}")
-        connection.rollback()       # Wipes all edits
+        connection.rollback()       
         cursor.close()              
         connection.close()   
 
 
 def import_data(folder_path):
+    # Given a path to .csv files, create tables in memory from data in those .csv files
+    
     try:
         connection = connect()          # Connects to local database using configs
         cursor = connection.cursor()    # MySQL object that can fetch and operate on each row
@@ -168,6 +171,7 @@ def import_data(folder_path):
         for table in tables:
             cursor.execute(f"DROP TABLE IF EXISTS {table}")     # Removes all tables defined under tables
 
+        # Creates tables first 
         create_tables()
 
         # Import data from all the .csv files
