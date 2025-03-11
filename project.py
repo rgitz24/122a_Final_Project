@@ -32,16 +32,26 @@ def import_data(folder_path):
         cursor = connection.cursor()    # MySQL object that can fetch and operate on each row
 
         # Delete old tables
-        tables = ["Sessions", "Movies", "Series", "Videos", "Reviews", "Viewers", "Producers", "Producers", "Releases", "Users"]
+        tables = {"movies", "producers", "releases", "reviews", "series", "sessions", "users", "videos", "viewers"}
 
         for table in tables:
             cursor.execute(f"DROP TABLE IF EXISTS {table}")     # Removes all tables defined under tables
 
         # Import data from all the .csv files
-        tables = {"movies", "producers", "releases", "reviews", "series", "sessions", "users", "videos", "viewers"}
+        tables_csv = {
+            "Movies": "movies.csv",
+            "Producers": "producers.csv",
+            "Releases": "releases.csv",
+            "Reviews": "reviews.csv",
+            "Series": "series.csv",
+            "Sessions": "sessions.csv",
+            "Users": "users.csv",
+            "Videos": "videos.csv",    
+            "Viewers": "viewers.csv"
+        }
         
-        for table in tables:
-            file_path = os.path.join(folder_path, f"{table}.csv")
+        for table, csv_file in tables_csv.items():
+            file_path = os.path.join(folder_path, csv_file)
 
             # Open each .csv file
             if os.path.exists(file_path):
