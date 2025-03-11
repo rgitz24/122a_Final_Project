@@ -37,24 +37,17 @@ def import_data(folder_path):
         for table in tables:
             cursor.execute(f"DROP TABLE IF EXISTS {table}")     # Removes all tables defined under tables
 
-        # Execute statements from load_data_instructions.txt
-        with open(os.path.join(folder_path, "load_data_instructions.txt"), 'r') as database:
-            statements = database.read().split(';')     # New statements are split via ;
-            for statement in statements:
-                if statement.strip():
-                    cursor.execute(statement)
-
         # Import data from all the .csv files
         tables_csv = {  # Defines a (table_name : table_file) tuple for easier writing
-            "Movies": "movies.csv",
-            "Producers": "producers.csv",
-            "Releases": "releases.csv",
-            "Reviews": "reviews.csv",
-            "Series": "series.csv",
-            "Sessions": "sessions.csv",
-            "Users": "users.csv",
-            "Videos": "videos.csv",
-            "Viewers": "viewers.csv"
+            "movies": "movies.csv",
+            "producers": "producers.csv",
+            "releases": "releases.csv",
+            "reviews": "reviews.csv",
+            "series": "series.csv",
+            "sessions": "sessions.csv",
+            "users": "users.csv",
+            "videos": "videos.csv",
+            "viewers": "viewers.csv"
         }
         
         for table, csv_file in tables_csv.items():
@@ -68,11 +61,8 @@ def import_data(folder_path):
                         # Input is NULL, treat as None type in Python 
                         edited_row = [None if item == '' else item for item in row]
                         
-                        # Get each string separated by commas
-                        values = ', '.join(['%s'] * len(edited_row))
-
                         # Insert
-                        insert = f"INSERT INTO {table} VALUES ({values})"
+                        insert = f"LOAD DATA LOCAL INFILE '{csv_file}' into table {table} FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n' IGNORE 1 ROWS;"
                         cursor.execute(insert, edited_row)
 
         # Commits all edits
@@ -124,7 +114,6 @@ def videos_reviewed_count():
 
 
 def main():
-
     # Error with user syntax
     if len(sys.argv) < 2:
         print("Please use the syntax: python3 project.py <function> [param1] [param2] ...")
