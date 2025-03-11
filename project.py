@@ -38,32 +38,23 @@ def import_data(folder_path):
             cursor.execute(f"DROP TABLE IF EXISTS {table}")     # Removes all tables defined under tables
 
         # Import data from all the .csv files
-        tables_csv = {  # Defines a (table_name : table_file) tuple for easier writing
-            "movies": "movies.csv",
-            "producers": "producers.csv",
-            "releases": "releases.csv",
-            "reviews": "reviews.csv",
-            "series": "series.csv",
-            "sessions": "sessions.csv",
-            "users": "users.csv",
-            "videos": "videos.csv",
-            "viewers": "viewers.csv"
-        }
+        tables = {"movies", "producers", "releases", "reviews", "series", "sessions", "users", "videos", "viewers"}
         
-        for table, csv_file in tables_csv.items():
-            file_path = os.path.join(folder_path, csv_file)
+        for table in tables:
+            file_path = os.path.join(folder_path, f"{table}.csv")
 
             # Open each .csv file
             if os.path.exists(file_path):
-                with open(file_path, 'r') as file:
-                    csv_read = csv.reader(file)
-                    for row in csv_read:
-                        # Input is NULL, treat as None type in Python 
-                        edited_row = [None if item == '' else item for item in row]
-                        
-                        # Insert
-                        insert = f"LOAD DATA LOCAL INFILE '{csv_file}' into table {table} FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n' IGNORE 1 ROWS;"
-                        cursor.execute(insert, edited_row)
+                full_path = os.path.abspath(file_path)
+
+                insert = f"""
+                LOAD DATA LOCAL INFILE '{full_path}'
+                INTO TABLE {table}
+                FIELDS TERMINATED BY ','
+                LINES TERMINATED BY '\\n'
+                """
+
+                cursor.execute(insert)
 
         # Commits all edits
         connection.commit()         
