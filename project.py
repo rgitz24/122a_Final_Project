@@ -149,7 +149,6 @@ def create_tables():
         connection.commit()
         cursor.close()
         connection.close()
-        print("Tables created successfully.")
 
     except Exception as error:
         print(f"Error creating tables: {error}")
@@ -189,6 +188,8 @@ def import_data(folder_path):
             if os.path.exists(file_path):
                 with open(file_path, 'r') as f:
                     csv_reader = csv.reader(f)
+                    headers = next(csv_reader, None) # Skip headers
+                    
                     for row in csv_reader:
                         # Replace empty strings with None
                         processed_row = [None if item == '' else item for item in row]
