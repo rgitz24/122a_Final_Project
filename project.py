@@ -142,7 +142,7 @@ def create_tables():
                 """
         }
 
-        for table, command in create_tables.items():
+        for table, command in tables.items():
             cursor.execute(command)
         
         # Commit all edits
