@@ -231,6 +231,17 @@ def insert_viewer(uid, email, nickname, street, city, state, zip, genres, joined
         connection = connect()
         cursor = connection.cursor()
 
+        # Check for duplicates
+        check = "SELECT uid FROM Users WHERE uid = %s"
+        cursor.execute(check, (uid,))
+        existing_user = cursor.fetchone()
+
+        if existing_user:
+            cursor.close()
+            connection.close()
+            return False
+        
+
         # Insert user
         insert_user_command = """
             INSERT INTO Users (uid, email, nickname, street, city, state, zip, genres, joined_date)
