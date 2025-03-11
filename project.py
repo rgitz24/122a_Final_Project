@@ -65,8 +65,8 @@ def create_tables():
                 CREATE TABLE IF NOT EXISTS Viewers (
                     uid INT,
                     subscription ENUM('free', 'monthly', 'yearly'),
-                    first_name TEXT NOT NULL,
-                    last_name TEXT NOT NULL,
+                    first TEXT NOT NULL,
+                    last TEXT NOT NULL,
                     PRIMARY KEY (uid),
                     FOREIGN KEY (uid) REFERENCES Users(uid) ON DELETE CASCADE
                 )
@@ -223,7 +223,7 @@ def import_data(folder_path):
         return False
 
 
-def insert_viewer(uid, email, joined_date, nickname, street, city, state, zip, genres, subscription, first_name, last_name):
+def insert_viewer(uid, email, nickname, street, city, state, zip, genres, joined_date, first, last, subscription):
     # Insert a new viewer
     # NOTE: create a User first then Viewer isA User
 
@@ -233,7 +233,7 @@ def insert_viewer(uid, email, joined_date, nickname, street, city, state, zip, g
 
         # Insert user
         insert_user_command = """
-            INSERT INTO Users (uid, email, joined_date, nickname, street, city, state, zip, genres)
+            INSERT INTO Users (uid, email, nickname, street, city, state, zip, genres, joined_date)
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
 
@@ -242,11 +242,11 @@ def insert_viewer(uid, email, joined_date, nickname, street, city, state, zip, g
 
         # Insert viewer
         insert_viewer_command = """
-            INSERT INTO Viewers (uid, subscription, first_name, last_name)
+            INSERT INTO Viewers (uid, subscription, first, last)
             VALUES (%s, %s, %s, %s)
         """
 
-        viewer_params = (uid, subscription, first_name, last_name)
+        viewer_params = (uid, subscription, first, last)
         cursor.execute(insert_viewer_command, viewer_params)
 
         # Commit all edits
