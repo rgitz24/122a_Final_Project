@@ -280,8 +280,44 @@ def add_genre():
 def delete_viewer():
     pass
 
-def insert_movie():
-    pass
+def insert_movie(rid, website_url):
+    # Assumption: Corresponding release record already exists
+
+    try:
+        connection = connect()
+        cursor = connection.cursor()
+
+        check = """
+                SELECT rid 
+                FROM Movies 
+                WHERE rid = %s
+                """
+        cursor.execute(check, (rid,))
+        existing_movie = cursor.fetchone()
+
+        if existing_movie:
+            cursor.close()
+            connection.close()
+            return False
+
+        insert_movie_q = """
+                         INSERT INTO Movies(rid, website_url)
+                         VALUES (%s, %s)
+                         """
+
+        cursor.execute(insert_movie_q,(rid,website_url))
+
+        connection.commit()
+        cursor.close()
+        connection.close()
+        return True
+
+    except Exception as error:
+        print(f"Error in insert_movie as: {error}")
+        connection.rollback()
+        cursor.close()
+        connection.close()
+        return False
 
 def insert_session():
     pass
