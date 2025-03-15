@@ -325,8 +325,37 @@ def insert_session():
 def update_release():
     pass
 
-def get_releases_reviewed():
-    pass
+def get_releases_reviewed(uid):
+    try:
+        connection = connect()
+        cursor = connection.cursor()
+
+        # Get releases for a viewer
+        get_releases_reviewed_command = """
+            SELECT DISTINCT r.rid, r.genre, r.title
+            FROM Releases r
+            JOIN Reviews rv ON r.rid = rv.rid
+            WHERE rv.uid = %s
+            ORDER BY r.title ASC;
+        """
+        
+        cursor.execute(get_releases_reviewed_command, (uid,))
+        results = cursor.fetchall()
+
+        cursor.close()
+        connection.close()
+
+        # Check if results exists and print
+        if results:
+            for row in results:
+                print(f"{row[0]},{row[1]},{row[2]}")
+        else:
+            print("No reviews found.")
+    
+    except Exception as error:
+        print(f"Error in get_releases_reviewed as: {error}")
+        cursor.close()
+        connection.close()
 
 def get_popular_releases():
     pass
@@ -354,7 +383,8 @@ def main():
     functions = {
         'import': lambda: import_data(params[0]),
         'insertViewer': lambda: insert_viewer(params[0], params[1], params[2], params[3], params[4], params[5], params[6], params[7], params[8], params[9], params[10], params[11]),
-        'insertMovie': lambda: insert_movie(params[0], params[1])
+        'insertMovie': lambda: insert_movie(params[0], params[1]),
+        'listReleases': lambda: get_releases_reviewed(params[0])
     }
 
     # Run functions
