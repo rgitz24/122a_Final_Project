@@ -322,8 +322,43 @@ def insert_movie(rid, website_url):
 def insert_session():
     pass
 
-def update_release():
-    pass
+def update_release(rid, title):
+    try:
+        connection = connect()
+        cursor = connection.cursor()
+
+        check = """
+                SELECT rid 
+                FROM Releases 
+                WHERE rid = %s
+                """
+        cursor.execute(check, (rid,))
+        existing_release = cursor.fetchone()
+
+        if not existing_release:
+            cursor.close()
+            connection.close()
+            return False
+
+        update_release_q = """
+                         UPDATE Releases
+                         SET title = %s
+                         WHERE rid =%s
+                         """
+
+        cursor.execute(update_release_q,(title,rid))
+
+        connection.commit()
+        cursor.close()
+        connection.close()
+        return True
+
+    except Exception as error:
+        print(f"Error in update_release as: {error}")
+        connection.rollback()
+        cursor.close()
+        connection.close()
+        return False
 
 def get_releases_reviewed(uid):
     try:
@@ -384,6 +419,7 @@ def main():
         'import': lambda: import_data(params[0]),
         'insertViewer': lambda: insert_viewer(params[0], params[1], params[2], params[3], params[4], params[5], params[6], params[7], params[8], params[9], params[10], params[11]),
         'insertMovie': lambda: insert_movie(params[0], params[1]),
+        'updateRelease': lambda: update_release(params[0], params[1]),
         'listReleases': lambda: get_releases_reviewed(params[0])
     }
 
