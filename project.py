@@ -515,8 +515,6 @@ def get_releases_reviewed(uid):
         if results:
             for row in results:
                 print(f"{row[0]},{row[1]},{row[2]}")
-        else:
-            print("No reviews found.")
     
     except Exception as error:
         print(f"Error in get_releases_reviewed as: {error}")
