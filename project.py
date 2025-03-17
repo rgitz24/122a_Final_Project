@@ -590,13 +590,67 @@ def release_title(sid):
 
 
 
-def get_active_viewers():
-    pass
+def get_active_viewers(N, start_date, end_date):
+    try:
+        connection = connect()
+        cursor = connection.cursor()
+        
+        get_active_viewers_command = """
+            SELECT v.uid, v.first, v.last
+            FROM Viewers v
+            JOIN Sessions s ON v.uid = s.uid
+            WHERE s.initiate_at >= %s AND s.initiate_at <= %s
+            GROUP BY v.uid, v.first, v.last
+            HAVING COUNT(*) >= %s
+            ORDER BY v.uid ASC;
+        """
+        
+        cursor.execute(get_active_viewers_command, (start_date, end_date, N))
+        rows = cursor.fetchall()
+        
+        # Print each row in CSV format: uid,first,last
+        for row in rows:
+            print(f"{row[0]},{row[1]},{row[2]}")
+
+        cursor.close()
+        connection.close()
+    
+    except Exception as e:
+        print(f"Error in get_active_viewers: {e}")
+        connection.rollback()
+        cursor.close()
+        connection.close()
 
 
 
-def videos_reviewed_count():
-    pass
+def videos_reviewed_count(rid):
+    try:
+        connection = connect()
+        cursor = connection.cursor()
+        
+        videos_reviewed_count_command = """
+            SELECT v.rid, v.ep_num, v.title, v.length, COUNT(DISTINCT s.uid) AS viewer_count
+            FROM Videos v
+            LEFT JOIN Sessions s ON v.rid = s.rid
+            WHERE v.rid = %s
+            GROUP BY v.rid, v.ep_num, v.title, v.length
+            ORDER BY v.rid DESC;
+        """
+        
+        cursor.execute(videos_reviewed_count_command, (rid,))
+        rows = cursor.fetchall()
+
+        for row in rows:
+            print(f"{row[0]},{row[1]},{row[2]},{row[3]},{row[4]}")
+
+        cursor.close()
+        connection.close()
+    
+    except Exception as e:
+        print(f"Error in videos_reviewed_count: {e}")
+        connection.rollback()
+        cursor.close()
+        connection.close()
 
 
 
@@ -620,7 +674,9 @@ def main():
         'deleteViewer': lambda: delete_viewer(params[0]),
         'insertSession': lambda: insert_session(params[0], params[1], params[2], params[3], params[4], params[5], params[6], params[7]),
         'popularRelease': lambda: get_popular_releases(params[0]),
-        'releaseTitle': lambda: release_title(params[0])
+        'releaseTitle': lambda: release_title(params[0]),
+        'activeViewer': lambda: get_active_viewers(params[0], params[1], params[2]),
+        'videosViewed': lambda: videos_reviewed_count(params[0])
     }
 
     # Run functions
