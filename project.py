@@ -593,7 +593,7 @@ def release_title(sid):
 
 
 def get_active_viewers():
-    
+    pass
 
 
 
