@@ -274,6 +274,7 @@ def insert_viewer(uid, email, nickname, street, city, state, zip, genres, joined
         return False
         
 
+
 def add_genre(uid, genre):
     try:
         connection = connect()
@@ -325,8 +326,8 @@ def delete_viewer(uid):
         connection = connect()
         cursor = connection.cursor()
 
-        get_user = "SELECT uid FROM Viewers WHERE uid = %s"
-        cursor.execute(get_user, (uid,))
+        get_viewer = "SELECT uid FROM Viewers WHERE uid = %s"
+        cursor.execute(get_viewer, (uid,))
         result = cursor.fetchone()
 
         if not result:
@@ -349,10 +350,6 @@ def delete_viewer(uid):
         cursor.close()
         connection.close()
         return False
-
-
-
-
 
 
 
@@ -395,8 +392,53 @@ def insert_movie(rid, website_url):
         connection.close()
         return False
 
-def insert_session():
-    pass
+
+
+
+def insert_session(sid, uid, rid, ep_num, initiate_at, leave_at, quality, device):
+    try:
+        connection = connect()
+        cursor = connection.cursor()
+
+        get_viewer = "SELECT uid FROM Viewers WHERE uid = %s"
+        cursor.execute(get_viewer, (uid,))
+
+        if not cursor.fetchone():
+            cursor.close()
+            connection.close()
+            return False
+
+        get_video = "SELECT rid, ep_num FROM Videos WHERE rid = %s AND ep_num = %s"
+        cursor.execute(get_video, (rid, ep_num))
+        if not cursor.fetchone():
+            cursor.close()
+            connection.close()
+            return False
+
+        get_session = "SELECT sid FROM Sessions WHERE sid = %s"
+        cursor.execute(get_session, (sid,))
+        if cursor.fetchone():
+            cursor.close()
+            connection.close()
+            return False
+
+        insert_session = "INSERT INTO Sessions (sid, uid, rid, ep_num, initiate_at, leave_at, quality, device) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
+        cursor.execute(insert_session, (sid, uid, rid, ep_num, initiate_at, leave_at, quality, device))
+
+        connection.commit()
+
+        cursor.close()
+        connection.close()
+        return True
+
+    except Exception as e:
+        print(f"Error in insert_session as: {e}")
+        connection.rollback()
+        cursor.close()
+        connection.close()
+        return False
+
+
 
 def update_release(rid, title):
     try:
@@ -436,6 +478,8 @@ def update_release(rid, title):
         connection.close()
         return False
 
+
+
 def get_releases_reviewed(uid):
     try:
         connection = connect()
@@ -468,17 +512,26 @@ def get_releases_reviewed(uid):
         cursor.close()
         connection.close()
 
+
+
 def get_popular_releases():
     pass
+
+
 
 def release_title():
     pass
 
+
+
 def get_active_viewers():
     pass
 
+
+
 def videos_reviewed_count():
     pass
+
 
 
 def main():
@@ -499,6 +552,7 @@ def main():
         'listReleases': lambda: get_releases_reviewed(params[0]),
         'addGenre': lambda: add_genre(params[0], params[1]),
         'deleteViewer': lambda: delete_viewer(params[0]),
+        'insertSession': lambda: insert_session(params[0], params[1], params[2], params[3], params[4], params[5], params[6], params[7])
     }
 
     # Run functions
@@ -508,8 +562,6 @@ def main():
             print("Success" if result else "Fail")
     else:
         print(f"Unknown function entered: {function_name}")
-
-
 
 
 
