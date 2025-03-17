@@ -318,12 +318,43 @@ def add_genre(uid, genre):
         connection.close()
         return False
 
-
-
     
 
-def delete_viewer():
-    pass
+def delete_viewer(uid):
+    try:
+        connection = connect()
+        cursor = connection.cursor()
+
+        get_user = "SELECT uid FROM Viewers WHERE uid = %s"
+        cursor.execute(get_user, (uid,))
+        result = cursor.fetchone()
+
+        if not result:
+            cursor.close()
+            connection.close()
+            return False
+
+        delete_viewer = "DELETE FROM Users WHERE uid = %s"
+        cursor.execute(delete_viewer, (uid,))
+
+        connection.commit()
+        cursor.close()
+        connection.close()
+        return True
+        
+
+    except Exception as e:
+        print(f"Error in delete_viewer: {e}")
+        connection.rollback()
+        cursor.close()
+        connection.close()
+        return False
+
+
+
+
+
+
 
 def insert_movie(rid, website_url):
     # Assumption: Corresponding release record already exists
@@ -466,7 +497,8 @@ def main():
         'insertMovie': lambda: insert_movie(params[0], params[1]),
         'updateRelease': lambda: update_release(params[0], params[1]),
         'listReleases': lambda: get_releases_reviewed(params[0]),
-        'addGenre': lambda: add_genre(params[0], params[1])
+        'addGenre': lambda: add_genre(params[0], params[1]),
+        'deleteViewer': lambda: delete_viewer(params[0]),
     }
 
     # Run functions
