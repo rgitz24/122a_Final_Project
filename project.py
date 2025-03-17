@@ -525,8 +525,37 @@ def get_releases_reviewed(uid):
 
 
 
-def get_popular_releases():
-    pass
+def get_popular_releases(k):
+    try:
+        connection = connect()
+        cursor = connection.cursor()
+    
+        get_releases = """
+                            SELECT rel.rid, rel.title, COUNT(rev.rvid) AS total
+                            FROM Releases rel, Reviews rev
+                            WHERE rel.rid = rev.rid
+                            GROUP BY rel.rid, rel.title
+                            ORDER BY total DESC, rel.rid DESC
+                        """
+
+        cursor.execute(get_releases)
+        names = cursor.fetchall()
+
+        if names:
+            for row in names[:int(k)]:
+                print(f"{row[0]},{row[1]},{row[2]}")
+        else:
+            print("Nothing found")
+
+        cursor.close()
+        connection.close()
+    
+    except Exception as e:
+        print(f"Error in get_popular_releases as: {e}")
+        connection.rollback()
+        cursor.close()
+        connection.close()
+        return False
 
 
 
@@ -563,7 +592,8 @@ def main():
         'listReleases': lambda: get_releases_reviewed(params[0]),
         'addGenre': lambda: add_genre(params[0], params[1]),
         'deleteViewer': lambda: delete_viewer(params[0]),
-        'insertSession': lambda: insert_session(params[0], params[1], params[2], params[3], params[4], params[5], params[6], params[7])
+        'insertSession': lambda: insert_session(params[0], params[1], params[2], params[3], params[4], params[5], params[6], params[7]),
+        'popularRelease': lambda: get_popular_releases(params[0])
     }
 
     # Run functions
