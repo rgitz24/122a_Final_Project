@@ -542,8 +542,6 @@ def get_popular_releases(k):
         if names:
             for row in names[:int(k)]:
                 print(f"{row[0]},{row[1]},{row[2]}")
-        else:
-            print("Nothing found")
 
         cursor.close()
         connection.close()
@@ -575,8 +573,6 @@ def release_title(sid):
         if titles:
             for row in titles:
                 print(f"{row[0]},{row[1]},{row[2]},{row[3]},{row[4]},{row[5]}")
-        else:
-            print("Nothing found")
 
         cursor.close()
         connection.close()
