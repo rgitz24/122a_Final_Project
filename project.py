@@ -280,7 +280,7 @@ def add_genre(uid, genre):
         connection = connect()
         cursor = connection.cursor()
 
-        genre = genre.strip()
+        genre = genre.strip().lower()
 
         get_user = "SELECT genres FROM Users WHERE uid = %s"
         cursor.execute(get_user, (uid,))
@@ -328,22 +328,33 @@ def delete_viewer(uid):
 
         get_viewer = "SELECT uid FROM Viewers WHERE uid = %s"
         cursor.execute(get_viewer, (uid,))
-        result = cursor.fetchone()
+        viewer = cursor.fetchone()
 
-        if not result:
+        get_producer = "SELECT uid FROM Producers WHERE uid = %s"
+        cursor.execute(get_producer, (uid,))
+        producer = cursor.fetchone()
+
+        if not viewer and not producer:
             cursor.close()
             connection.close()
             return False
 
-        delete_viewer = "DELETE FROM Users WHERE uid = %s"
-        cursor.execute(delete_viewer, (uid,))
+        if viewer:
+            delete_viewer = "DELETE FROM Viewers WHERE uid = %s"
+            cursor.execute(delete_viewer, (uid,))
+
+        if producer:
+            delete_producer = "DELETE FROM Producers WHERE uid = %s"
+            cursor.execute(delete_producer, (uid,))
+
+        delete_user = "DELETE FROM Users WHERE uid = %s"
+        cursor.execute(delete_user, (uid,))
 
         connection.commit()
         cursor.close()
         connection.close()
         return True
         
-
     except Exception as e:
         print(f"Error in delete_viewer: {e}")
         connection.rollback()
