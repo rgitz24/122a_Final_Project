@@ -274,8 +274,53 @@ def insert_viewer(uid, email, nickname, street, city, state, zip, genres, joined
         return False
         
 
-def add_genre():
-    pass
+def add_genre(uid, genre):
+    try:
+        connection = connect()
+        cursor = connection.cursor()
+
+        genre = genre.strip()
+
+        get_user = "SELECT genres FROM Users WHERE uid = %s"
+        cursor.execute(get_user, (uid,))
+        result = cursor.fetchone()
+
+        if not result:
+            cursor.close()
+            connection.close()
+            return False
+
+        current_genres = result[0]
+        if current_genres is None:
+            update_user = "UPDATE Users SET genres = %s WHERE uid = %s"
+            cursor.execute(update_user, (genre, uid))
+            connection.commit()
+        else:
+            list_of_genres = current_genres.split(";")
+            if genre not in list_of_genres:
+                list_of_genres.append(genre)
+                new_list_of_genres = ';'.join(list_of_genres)
+                update_user = "UPDATE Users SET genres = %s WHERE uid = %s"
+                cursor.execute(update_user, (new_list_of_genres, uid))
+                connection.commit()
+            else:
+                return False
+
+        cursor.close()
+        connection.close()
+        return True
+
+
+    except Exception as e:
+        print(f"Error in add_genre: {e}")
+        connection.rollback()
+        cursor.close()
+        connection.close()
+        return False
+
+
+
+    
 
 def delete_viewer():
     pass
@@ -420,7 +465,8 @@ def main():
         'insertViewer': lambda: insert_viewer(params[0], params[1], params[2], params[3], params[4], params[5], params[6], params[7], params[8], params[9], params[10], params[11]),
         'insertMovie': lambda: insert_movie(params[0], params[1]),
         'updateRelease': lambda: update_release(params[0], params[1]),
-        'listReleases': lambda: get_releases_reviewed(params[0])
+        'listReleases': lambda: get_releases_reviewed(params[0]),
+        'addGenre': lambda: add_genre(params[0], params[1])
     }
 
     # Run functions
@@ -430,6 +476,10 @@ def main():
             print("Success" if result else "Fail")
     else:
         print(f"Unknown function entered: {function_name}")
+
+
+
+
 
 if __name__ == "__main__":
     main()
