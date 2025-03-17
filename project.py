@@ -559,13 +559,41 @@ def get_popular_releases(k):
 
 
 
-def release_title():
-    pass
+def release_title(sid):
+    try:
+        connection = connect()
+        cursor = connection.cursor()
+
+        get_titles = """
+                    SELECT r.rid, r.title, r.genre, v.title, v.ep_num, v.length
+                    FROM Sessions s, Videos v, Releases r
+                    WHERE s.rid = v.rid AND s.ep_num = v.ep_num AND v.rid = r.rid AND s.sid = %s
+                    ORDER BY r.title ASC;
+                """
+        
+        cursor.execute(get_titles, (sid,))
+        titles = cursor.fetchall()
+
+        if titles:
+            for row in titles:
+                print(f"{row[0]},{row[1]},{row[2]},{row[3]},{row[4]},{row[5]}")
+        else:
+            print("Nothing found")
+
+        cursor.close()
+        connection.close()
+
+    except Exception as e:
+        print(f"Error in release_title as: {e}")
+        connection.rollback()
+        cursor.close()
+        connection.close()
+        return False
 
 
 
 def get_active_viewers():
-    pass
+    
 
 
 
@@ -593,7 +621,8 @@ def main():
         'addGenre': lambda: add_genre(params[0], params[1]),
         'deleteViewer': lambda: delete_viewer(params[0]),
         'insertSession': lambda: insert_session(params[0], params[1], params[2], params[3], params[4], params[5], params[6], params[7]),
-        'popularRelease': lambda: get_popular_releases(params[0])
+        'popularRelease': lambda: get_popular_releases(params[0]),
+        'releaseTitle': lambda: release_title(params[0])
     }
 
     # Run functions
